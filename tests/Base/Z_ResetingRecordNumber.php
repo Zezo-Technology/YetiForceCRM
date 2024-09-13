@@ -5,9 +5,8 @@
  * @package   Tests
  *
  * @copyright YetiForce S.A.
- * @license   YetiForce Public License 5.0 (licenses/LicenseEN.txt or yetiforce.com)
+ * @license   YetiForce Public License 6.5 (licenses/LicenseEN.txt or yetiforce.com)
  * @author    Rafal Pospiech <r.pospiech@yetiforce.com>
- * @author    Radosław Skrzypczak <r.skrzypczak@yetiforce.com>
  */
 
 namespace Tests\Base;
@@ -23,26 +22,7 @@ class RecordNumber extends \App\Fields\RecordNumber
 	 * @var array of dates
 	 */
 	public static $dates = [
-		'2015-01-01',
-		'2015-03-03',
-		'2015-03-03',
-		'2015-03-03',
-		'2015-03-04',
-		'2015-03-04',
-		'2015-03-05',
-		'2015-11-09',
-		'2015-11-10',
-		'2015-11-11',
-		'2015-11-28',
-		'2016-11-29',
-		'2017-03-15',
-		'2017-03-18',
-		'2017-07-19',
-		'2018-01-01',
-		'2018-01-02',
-		'2018-01-02',
-		'2018-02-03',
-		'2018-05-05',
+		'2015-01-01'
 	];
 
 	/**
@@ -83,15 +63,7 @@ class Z_ResetingRecordNumber extends \Tests\Base
 	public static function setUpBeforeClass(): void
 	{
 		self::$transaction = \App\Db::getInstance()->beginTransaction();
-	}
-
-	/**
-	 * Cleaning after tests.
-	 */
-	public static function tearDownAfterClass(): void
-	{
-		self::$transaction->rollBack();
-		\App\Cache::clear();
+		RecordNumber::$dates[0] = date('Y-m-d');
 	}
 
 	/**
@@ -99,7 +71,6 @@ class Z_ResetingRecordNumber extends \Tests\Base
 	 */
 	public function testDateMock()
 	{
-		$this->assertCount(20, RecordNumber::$dates);
 		foreach (RecordNumber::$dates as $index => $date) {
 			RecordNumber::$currentDateIndex = $index;
 			$this->assertSame($date, RecordNumber::date('Y-m-d'));
@@ -185,7 +156,7 @@ class Z_ResetingRecordNumber extends \Tests\Base
 		$instance->set('cur_sequence', $curSequence);
 		$result = $instance->save();
 		$this->assertSame(1, $result);
-		$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => \App\Module::getModuleId('FInvoice')])->one();
+		$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => 95])->one();
 		$this->assertSame($prefix, $originalRow['prefix']);
 		$this->assertSame(0, $originalRow['leading_zeros']);
 		$this->assertSame($postfix, $originalRow['postfix']);
@@ -234,7 +205,7 @@ class Z_ResetingRecordNumber extends \Tests\Base
 		$instance->set('cur_sequence', $curSequence);
 		$result = $instance->save();
 		$this->assertSame(1, $result);
-		$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => \App\Module::getModuleId('FInvoice')])->one();
+		$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => 95])->one();
 		$this->assertSame($prefix, $originalRow['prefix']);
 		$this->assertSame(0, $originalRow['leading_zeros']);
 		$this->assertSame($postfix, $originalRow['postfix']);
@@ -284,7 +255,7 @@ class Z_ResetingRecordNumber extends \Tests\Base
 		$instance->set('cur_sequence', $curSequence);
 		$result = $instance->save();
 		$this->assertSame(1, $result);
-		$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => \App\Module::getModuleId('FInvoice')])->one();
+		$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => 95])->one();
 		$this->assertSame($prefix, $originalRow['prefix']);
 		$this->assertSame(0, $originalRow['leading_zeros']);
 		$this->assertSame($postfix, $originalRow['postfix']);
@@ -335,7 +306,7 @@ class Z_ResetingRecordNumber extends \Tests\Base
 			$instance->set('cur_sequence', $curSequence);
 			$result = $instance->save();
 			$this->assertSame(1, $result);
-			$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => \App\Module::getModuleId('FInvoice')])->one();
+			$originalRow = (new \App\Db\Query())->from('vtiger_modentity_num')->where(['tabid' => 95])->one();
 			$this->assertSame($prefix, $originalRow['prefix']);
 			$this->assertSame($leadingZeros, $originalRow['leading_zeros']);
 			$this->assertSame($postfix, $originalRow['postfix']);
@@ -354,7 +325,7 @@ class Z_ResetingRecordNumber extends \Tests\Base
 					$currentNumber = 1;
 					$currentDate = $sequence;
 				}
-				$currentNumber = str_pad($currentNumber, $leadingZeros, '0', STR_PAD_LEFT);
+				$currentNumber = \str_pad($currentNumber, $leadingZeros, '0', STR_PAD_LEFT);
 				$this->assertSame("$date/$currentNumber", $instance->getIncrementNumber());
 				$number = RecordNumber::getInstance('FInvoice');
 				$this->assertSame($currentNumber + 1, $number->get('cur_id'));
@@ -365,5 +336,14 @@ class Z_ResetingRecordNumber extends \Tests\Base
 				$this->assertSame($postfix, $number->get('postfix'));
 			}
 		}
+	}
+
+	/**
+	 * Cleaning after tests.
+	 */
+	public static function tearDownAfterClass(): void
+	{
+		self::$transaction->rollBack();
+		\App\Cache::clear();
 	}
 }

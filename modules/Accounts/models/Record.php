@@ -21,7 +21,7 @@ class Accounts_Record_Model extends Vtiger_Record_Model
 		$focus = CRMEntity::getInstance($this->getModuleName());
 		$hierarchy = $focus->getAccountHierarchy($this->getId());
 		foreach ($hierarchy['entries'] as $accountId => $accountInfo) {
-			$link = $accountInfo[0]['data'] ?? '';
+			$link = $accountInfo[0]['data'];
 			preg_match('/<a href="+/', $link, $matches);
 			if (!empty($matches)) {
 				preg_match('/[.\s]+/', $link, $dashes);
@@ -29,7 +29,7 @@ class Accounts_Record_Model extends Vtiger_Record_Model
 
 				$recordModel = Vtiger_Record_Model::getCleanInstance('Accounts');
 				$recordModel->setId($accountId);
-				$hierarchy['entries'][$accountId][0]['data'] = $dashes[0] . '<a href=' . $recordModel->getDetailViewUrl() . '>' . $name[2] . '</a>';
+				$hierarchy['entries'][$accountId][0]['data'] = ($dashes[0] ?? '') . '<a href=' . $recordModel->getDetailViewUrl() . '>' . $name[2] . '</a>';
 			}
 		}
 		return $hierarchy;
